@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+		integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<link rel="stylesheet" href="/assets/main.css">
+    <script src="/assets/script.js"></script>
+	<script src="https://kit.fontawesome.com/eee46aa2f8.js" crossorigin="anonymous"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+</head>
+<body>
+    <header class="header">
+		<button class="btn btn-light" onclick="randomColor()"
+			style="font-size: 12px; position: fixed; top: 69px; left: 0%; padding: 1px; border-radius: 0px;">Random background</button>
+			<a th:if="${session.user != null}" href="/logout" style="position: fixed; right:0px; top: 25px;
+			 background-color: white; padding: 5px; font-size: 20px; font-weight: 600; border-radius: 5px;">Đăng xuất</a>
+			<a href="/books" style="font-size: 20px; font-weight: 500; position: fixed; top: 50px; left: 130px; color: white;">
+				<i class="fa-solid fa-book"
+					style="font-size: 30px; position: relative; top: -25px; left: 50%;">
+				</i>
+				<span>Trang chủ</span>
+			</a>
+			<div th:if="${session.user != null}" class="dropdown" style="position: fixed; top: 20px; right: 400px; color: white;">
+				<div style="margin: 0px; padding: 0px;">
+					<i class="fa-solid fa-envelopes-bulk" style="font-size: 25px;"></i>
+				</div>
+				<div>
+					<button class="dropbtn" style="font-size: 20px; font-weight: 500;">Giao dịch</button>
+				</div>
+				<div class="dropdown-content" style="text-align: left;">
+				  <a href="/yourpendingtrans">GD Đang Chờ</a>
+				  <a href="/yourexpiredtrans">GD Đã Kết Thúc</a>
+				</div>
+			</div>
+			<a href="/profile" style="font-size: 20px; font-weight: 500; position: fixed; top: 50px; right: 150px; color: white;">
+				<i class="fa-regular fa-circle-user"
+					style="font-size: 25px; position: relative; top: -25px; left: 50%;">
+				</i>
+				<span th:text="${session.user != null ? session.user.name : 'Tài khoản'}">Tài khoản</span>
+			</a>
+			<span style="font-size: 20px; font-weight: 500; color: white;">Tìm kiếm</span>
+			<form action="/search" method="GET">
+				<input type="search" name="search" id="search" style="padding: 3px 10px 3px 10px; border: 1px solid #dddddd; border-radius: 3px 0px 0px 3px;">
+				<button type="submit" style="position: relative; right: 5px; 
+				padding: 3px 10px 3px 10px; border: 1px solid #dddddd; border-radius:0px 3px 3px 0px;"><i class="fas fa-search"></i></button>
+			</form>
+	</header>
+	<div class="container" style="height: 150px;">
+        <h1 style="padding-top: 10px">Đơn mua sách <span th:if="${transaction.transid}" th:text="${transaction.transid} != 0?'('+${transaction.transid}+')':''">(id giao dịch)</span>: <span th:text="${book.title}">tên sách</span></h1>
+    </div>
+    <div class="container1">
+	        <div class="insideContainer">
+	            <div class="flexW100_HFit">
+	                <div class="blockNoPadding">
+	                    <label class="blockNoPadding" for="title">Tiêu đề:</label>
+	                    <input name="title" id="title" type="text" th:field="${book.title}" readonly>
+	                </div>
+	                <div class="blockNoPadding">
+	                    <label class="blockNoPadding" for="author">Tác giả:</label>
+	                    <input name="author" id="author" type="text" th:field="${book.author}" readonly>
+	                </div>
+	            </div>
+	            <div style="margin-right: 20px;">
+	                <label class="blockNoPadding" for="descr">Mô tả về sách:</label>
+	                <textarea class="blockNoPadding" style="margin: 0px;" name="descr" id="descr" rows="5" th:field="${book.descr}" readonly></textarea>
+	            </div>
+	            <div class="flexW100_HFit">
+	                <div class="blockNoPadding">
+	                    <label class="blockNoPadding" for="title">Ngày phát hành:</label>
+	                    <input type="date" th:field="${book.rlsdate}" readonly>
+	                </div>
+	                <div class="blockNoPadding">
+	                    <label class="blockNoPadding" for="title">Số trang:</label>
+	                    <input type="number" th:field="${book.pages}" readonly>
+	                </div>
+	            </div>
+	            <div class="blockNoPadding">
+	                <label class="blockNoPadding" for="">Thể loại:</label>
+	                <th:block th:each="category : ${categories}">
+						<input th:if="${book.category == category.catid}" th:value="${category.catname}" readonly></input>
+					</th:block>
+	            </div>
+                
+                <div class="flexW100_HFit">
+	                <div class="blockNoPadding">
+	                    <div class="stars">
+                            <label class="blockNoPadding" for="">Đánh giá chung:</label>
+                            <input name="overallstar" id="overallstar" type="hidden" th:value="${overallrating}">
+                            <svg width="100" height="100" viewBox="0 0 940.688 940.688">
+                              <path d="M885.344,319.071l-258-3.8l-102.7-264.399c-19.8-48.801-88.899-48.801-108.6,0l-102.7,264.399l-258,3.8 c-53.4,3.101-75.1,70.2-33.7,103.9l209.2,181.4l-71.3,247.7c-14,50.899,41.1,92.899,86.5,65.899l224.3-122.7l224.3,122.601 c45.4,27,100.5-15,86.5-65.9l-71.3-247.7l209.2-181.399C960.443,389.172,938.744,322.071,885.344,319.071z" />
+                            </svg>
+                            <svg width="100" height="100" viewBox="0 0 940.688 940.688">
+                              <path d="M885.344,319.071l-258-3.8l-102.7-264.399c-19.8-48.801-88.899-48.801-108.6,0l-102.7,264.399l-258,3.8 c-53.4,3.101-75.1,70.2-33.7,103.9l209.2,181.4l-71.3,247.7c-14,50.899,41.1,92.899,86.5,65.899l224.3-122.7l224.3,122.601 c45.4,27,100.5-15,86.5-65.9l-71.3-247.7l209.2-181.399C960.443,389.172,938.744,322.071,885.344,319.071z" />
+                            </svg>
+                            <svg width="100" height="100" viewBox="0 0 940.688 940.688">
+                              <path d="M885.344,319.071l-258-3.8l-102.7-264.399c-19.8-48.801-88.899-48.801-108.6,0l-102.7,264.399l-258,3.8 c-53.4,3.101-75.1,70.2-33.7,103.9l209.2,181.4l-71.3,247.7c-14,50.899,41.1,92.899,86.5,65.899l224.3-122.7l224.3,122.601 c45.4,27,100.5-15,86.5-65.9l-71.3-247.7l209.2-181.399C960.443,389.172,938.744,322.071,885.344,319.071z" />
+                            </svg>
+                            <svg width="100" height="100" viewBox="0 0 940.688 940.688">
+                              <path d="M885.344,319.071l-258-3.8l-102.7-264.399c-19.8-48.801-88.899-48.801-108.6,0l-102.7,264.399l-258,3.8 c-53.4,3.101-75.1,70.2-33.7,103.9l209.2,181.4l-71.3,247.7c-14,50.899,41.1,92.899,86.5,65.899l224.3-122.7l224.3,122.601 c45.4,27,100.5-15,86.5-65.9l-71.3-247.7l209.2-181.399C960.443,389.172,938.744,322.071,885.344,319.071z" />
+                            </svg>
+                            <svg width="100" height="100" viewBox="0 0 940.688 940.688">
+                              <path d="M885.344,319.071l-258-3.8l-102.7-264.399c-19.8-48.801-88.899-48.801-108.6,0l-102.7,264.399l-258,3.8 c-53.4,3.101-75.1,70.2-33.7,103.9l209.2,181.4l-71.3,247.7c-14,50.899,41.1,92.899,86.5,65.899l224.3-122.7l224.3,122.601 c45.4,27,100.5-15,86.5-65.9l-71.3-247.7l209.2-181.399C960.443,389.172,938.744,322.071,885.344,319.071z" />
+                            </svg>
+                            <div class="overlay"></div>
+                        </div>
+	                </div>
+	            </div>
+	        </div>
+	        
+	        <div class="insideContainer" style="display: flex; flex-direction: column; align-items: center; background-color: gainsboro; border-radius: 9px;">
+	            <div class="divImage" id="coverImg" name="coverImg">
+	                <img th:src="${book.coverurl}" alt="Không tìm thấy ảnh">
+	            </div>  
+	        </div>
+            
+    </div>
+    <div class="container" style="display: flex; padding: 50px 0px 25px 0px; justify-content: center;">
+        <div style="text-align: left; width: 35%;">
+        		<div style="text-align: start;">
+				  <span th:text="'Ngày tạo: ' + ${transaction.created}"></span>
+				</div>
+                <div style="margin: 10px 0px 10px 0px; display: flex; justify-content: space-between;">
+                    <label for="buyerNameInput" style="width: 45%;">Tên người mua:</label>
+                    <input th:field="${transaction.buyername}" name="buyerNameInput" id="buyerNameInput" type="text" placeholder="Tên người mua..." style="width: 100%" required="required" th:disabled="${transaction.status} > 0">
+                </div>
+                <div style="margin: 10px 0px 10px 0px; display: flex; justify-content: space-between;">
+                    <label for="buyerPhoneInput" style="width: 45%;">Số điện thoại:</label>
+                    <input th:field="${transaction.buyerphone}" name="buyerPhoneInput" id="buyerPhoneInput" type="text" placeholder="Số điện thoại..." style="width: 100%" required="required" th:disabled="${transaction.status} > 0">
+                </div>
+                <div style="margin: 10px 0px 10px 0px; display: flex; justify-content: space-between;">
+                    <label for="buyerEmailInput" style="width: 45%;">Email:</label>
+                    <input th:field="${transaction.buyeremail}" name="buyerPhoneInput" id="buyerPhoneInput" type="email" placeholder="Email..." style="width: 100%" required="required" th:disabled="${transaction.status} > 0">
+                </div>
+                <div style="margin: 10px 0px 10px 0px;">
+                    <p style="padding: 0px; margin: 0px;" for="deliveryAddressInput">Địa chỉ giao hàng:</p>
+                    <textarea th:field="${transaction.deliveryaddress}" name="deliveryAddressInput" id="deliveryAddressInput" rows="3" style="width: 100%;" required="required" th:disabled="${transaction.status} > 0"></textarea>
+                </div>
+                <div style="margin: 10px 0px 10px 0px; display: flex; justify-content: center;">
+                    <label for="quantityInput" style="width: 15%;">Số lượng:</label>
+                    <input th:field="${transaction.quantity}" name="quantityInput" id="quantityInput" type="number" placeholder="Số lượng..." min="1" style="width: 25%" required="required" th:disabled="${transaction.status} > 0">
+                </div>
+                <div style="margin: 10px 0px 10px 0px;">
+                    <p style="padding: 0px; margin: 0px;" for="noteInput">Ghi chú:</p>
+                    <textarea th:field="${transaction.note}" name="noteInput" id="noteInput" rows="3" style="width: 100%;" th:disabled="${transaction.status} > 0"></textarea>
+                </div>
+				<div style="text-align: center;">
+				  <span th:if="${transaction.status == 1}" style="font-size: 30px; color: darkorange;">Trạng thái: Đang chờ</span>
+				  <span th:if="${transaction.status == 2}" style="font-size: 30px; color: green;">Trạng thái: Thành công</span>
+				  <span th:if="${transaction.status == 3}" style="font-size: 30px; color: red;">Trạng thái: Thất bại</span>
+				</div>
+                <div style="display: flex; margin: 10px 0px 10px 0px; text-align: center; justify-content: space-around;">
+            		<th:block th:if="${transaction.status == 1}">
+	                	<form th:if="${session.user.IsAdmin == 1}"  th:action="@{/transaction/confirm/{transid}(transid = ${transaction.transid})}" th:method="PUT">
+		                    <button type="submit" class="btn btn-success" style="font-weight: 500; width: 200px;">Xác Nhận Đơn Hàng</button>
+	                	</form>
+            		</th:block>
+            		<th:block th:if="${transaction.status == 1}">
+	                	<form th:action="@{/transaction/decline/{transid}(transid = ${transaction.transid})}" th:method="PUT">
+		                    <button type="submit" class="btn btn-danger" style="font-weight: 500; width: 200px;">Hủy Đơn Hàng</button>
+	                	</form>
+            		</th:block>
+                </div>
+        </div>
+    </div>
+    <footer class="footer" style="position: relative;">
+    </footer>
+</body>
+<script>
+    $(':radio').change(function() {
+    console.log('New star rating: ' + this.value);
+    });
+    const percentage = document.getElementById("overallstar").value;
+    document.querySelector('.overlay').style.width = `${100 - percentage}%`;
+</script>
+</html>
